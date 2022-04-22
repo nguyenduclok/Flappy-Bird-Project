@@ -1,17 +1,11 @@
 #include <SDL.h>
-
 #include <SDL_image.h>
-
 #include <iostream>
-
+#include <fstream>
 #include <vector>
-
 #include "RenderWindow.hpp"
-
 #include "Entity.hpp"
-
 #include "Utils.hpp"
-
 #include <ctime>
 
 const double SCREEN_WIDTH = 600;
@@ -50,7 +44,6 @@ const double BIRD_X = 230;
 const double INIT_BASE1_X = 0;
 const int INIT_SCORE = 0;
 const double NUMBER_SMALL_WIDTH = 26;
-const int INIT_BEST_SCORE = 0;
 const double BEST_IN_SCORE_BOARD_Y = 72 + NUMBER_IN_SCORE_BOARD_Y;
 
 void set_rect(SDL_Rect & rect, double a, double b, double width, double height) {
@@ -96,8 +89,14 @@ bool collision(SDL_Rect rect1, SDL_Rect rect2) {
 }
 
 int main(int argc, char ** argv) {
+    std::ios::sync_with_stdio();
+    std::cin.tie(0);
+
+    std::ifstream input;
+    std::ofstream output;
+
     if (SDL_Init(SDL_INIT_VIDEO) > 0) {
-        std::cout << "HEY.. SDL_Init HAS FAILED. SDL_ERROR: " << SDL_GetError() << std::endl;
+        std::cout << "HEY... SDL_Init HAS FAILED. SDL_ERROR: " << SDL_GetError() << std::endl;
     }
 
     if (!(IMG_Init(IMG_INIT_PNG))) {
@@ -129,7 +128,6 @@ int main(int argc, char ** argv) {
     SDL_Texture * score_board_texture = window.loadTexture("images/score.png");
 
     int score = INIT_SCORE;
-    int best_score = INIT_BEST_SCORE;
     int bird_frame = 0;
     bool pausing = false;
     bool start_game = true;
@@ -150,28 +148,32 @@ int main(int argc, char ** argv) {
     double bird_y = INIT_BIRD_Y;
     int kind_of_bird = rand() % NUMBER_OF_BIRD;
     int random_bg = rand() % NUMBER_OF_BACKGROUND;
+    input.open("best_score_record.txt");
+    int best_score;
+    input >> best_score;
+    input.close();
 
-    std::vector < Entity > background;
+    std::vector <Entity> background;
     Entity background1 = Entity(Vector2f(0, 0), bg1_texture);
     Entity background2 = Entity(Vector2f(0, 0), bg2_texture);
     background.push_back(background1);
     background.push_back(background2);
 
-    std::vector < std::vector < SDL_Texture * > > bird_texture;
+    std::vector <std::vector< SDL_Texture*>> bird_texture;
 
-    std::vector < SDL_Texture * > yellow_bird_texture;
+    std::vector <SDL_Texture*> yellow_bird_texture;
     yellow_bird_texture.push_back(yellow_bird_up_flap_texture);
     yellow_bird_texture.push_back(yellow_bird_mid_flap_texture);
     yellow_bird_texture.push_back(yellow_bird_down_flap_texture);
     bird_texture.push_back(yellow_bird_texture);
 
-    std::vector < SDL_Texture * > red_bird_texture;
+    std::vector <SDL_Texture*> red_bird_texture;
     red_bird_texture.push_back(red_bird_up_flap_texture);
     red_bird_texture.push_back(red_bird_mid_flap_texture);
     red_bird_texture.push_back(red_bird_down_flap_texture);
     bird_texture.push_back(red_bird_texture);
 
-    std::vector < SDL_Texture * > blue_bird_texture;
+    std::vector <SDL_Texture*> blue_bird_texture;
     blue_bird_texture.push_back(blue_bird_up_flap_texture);
     blue_bird_texture.push_back(blue_bird_mid_flap_texture);
     blue_bird_texture.push_back(blue_bird_down_flap_texture);
@@ -202,7 +204,7 @@ int main(int argc, char ** argv) {
         Entity pipe2_reverse = Entity(Vector2f(pipe2_x, pipe2_reverse_y), pipe_reverse_texture);
 
         SDL_Rect bird_rect, pipe1_rect, pipe2_rect, pipe1_reverse_rect, pipe2_reverse_rect,
-        base1_rect, base2_rect, base1_reverse_rect, base2_reverse_rect;
+                            base1_rect, base2_rect, base1_reverse_rect, base2_reverse_rect;
 
         set_rect(bird_rect, BIRD_X, bird_y, BIRD_WIDTH, BIRD_HEIGHT);
         set_rect(pipe1_rect, pipe1_x, pipe1_y, PIPE_WIDTH, SCREEN_HEIGHT - BASE_HEIGHT - pipe1_y);
@@ -214,7 +216,7 @@ int main(int argc, char ** argv) {
         set_rect(base1_reverse_rect, base1_x, BASE_REVERSE_Y, SCREEN_WIDTH, BASE_HEIGHT);
         set_rect(base2_reverse_rect, base2_x, BASE_REVERSE_Y, SCREEN_WIDTH, BASE_HEIGHT);
 
-        std::vector < SDL_Rect > all_of_rect;
+        std::vector <SDL_Rect> all_of_rect;
 
         all_of_rect.push_back(pipe1_rect);
         all_of_rect.push_back(pipe1_reverse_rect);
@@ -269,6 +271,9 @@ int main(int argc, char ** argv) {
 
         if (score > best_score) {
             best_score = score;
+            output.open("best_score_record.txt");
+            output << best_score;
+            output.close();
         }
 
         std::string score_in_string = std::to_string(score);
@@ -276,8 +281,8 @@ int main(int argc, char ** argv) {
         std::string str;
         SDL_Texture * tex1;
         SDL_Texture * tex2;
-        std::vector < Entity > number;
-        std::vector < Entity > number_in_score_board;
+        std::vector <Entity> number;
+        std::vector <Entity> number_in_score_board;
 
         if (len == 1) {
             str = "images/" + std::string(1, score_in_string[0]) + ".png";
@@ -327,30 +332,30 @@ int main(int argc, char ** argv) {
         int len_best = best_in_string.length();
         std::string s;
         SDL_Texture * tex;
-        std::vector < Entity > best_in_score_board;
+        std::vector <Entity> best_in_score_board;
 
         if (len_best == 1) {
             s = "images/" + std::string(1, best_in_string[0]) + "-small.png";
             tex = window.loadTexture(s.c_str());
             best_in_score_board.push_back(Entity(Vector2f(SCREEN_WIDTH / 2 - NUMBER_SMALL_WIDTH / 2, BEST_IN_SCORE_BOARD_Y), tex));
         } else if (len_best == 2) {
-            s = "images/" + std::string(1, score_in_string[0]) + "-small.png";
+            s = "images/" + std::string(1, best_in_string[0]) + "-small.png";
             tex = window.loadTexture(s.c_str());
             best_in_score_board.push_back(Entity(Vector2f(SCREEN_WIDTH / 2 - NUMBER_SMALL_WIDTH - NUMBER_GAP, BEST_IN_SCORE_BOARD_Y), tex));
 
-            s = "images/" + std::string(1, score_in_string[1]) + "-small.png";
+            s = "images/" + std::string(1, best_in_string[1]) + "-small.png";
             tex = window.loadTexture(s.c_str());
             best_in_score_board.push_back(Entity(Vector2f(SCREEN_WIDTH / 2 + NUMBER_GAP, BEST_IN_SCORE_BOARD_Y), tex));
         } else if (len_best == 3) {
-            s = "images/" + std::string(1, score_in_string[0]) + "-small.png";
+            s = "images/" + std::string(1, best_in_string[0]) + "-small.png";
             tex = window.loadTexture(s.c_str());
             best_in_score_board.push_back(Entity(Vector2f(SCREEN_WIDTH / 2 - NUMBER_SMALL_WIDTH / 2 * 3 - NUMBER_GAP, BEST_IN_SCORE_BOARD_Y), tex));
 
-            s = "images/" + std::string(1, score_in_string[1]) + "-small.png";
+            s = "images/" + std::string(1, best_in_string[1]) + "-small.png";
             tex = window.loadTexture(s.c_str());
             best_in_score_board.push_back(Entity(Vector2f(SCREEN_WIDTH / 2 - NUMBER_SMALL_WIDTH / 2, BEST_IN_SCORE_BOARD_Y), tex));
 
-            s = "images/" + std::string(1, score_in_string[2]) + "-small.png";
+            s = "images/" + std::string(1, best_in_string[2]) + "-small.png";
             tex = window.loadTexture(s.c_str());
             best_in_score_board.push_back(Entity(Vector2f(SCREEN_WIDTH / 2 + NUMBER_SMALL_WIDTH / 2 + NUMBER_GAP, BEST_IN_SCORE_BOARD_Y), tex));
         }
