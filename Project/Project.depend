@@ -1,0 +1,45 @@
+# depslib dependency file v1.0
+1651413877 source:c:\game\project\entity.cpp
+	"Entity.hpp"
+	<SDL.h>
+	<SDL_image.h>
+
+1652149363 c:\game\project\entity.hpp
+	<SDL.h>
+	<SDL_image.h>
+	<iostream>
+	"Math.hpp"
+
+1650897953 c:\game\project\math.hpp
+	<iostream>
+
+1651413905 source:c:\game\project\renderwindow.cpp
+	<SDL.h>
+	<SDL_image.h>
+	"RenderWindow.hpp"
+	<iostream>
+
+1651413978 c:\game\project\renderwindow.hpp
+	<SDL.h>
+	<SDL_image.h>
+	"Entity.hpp"
+	<iostream>
+
+1652706433 source:c:\game\project\main.cpp
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<iostream>
+	<fstream>
+	<vector>
+	"RenderWindow.hpp"
+	"Entity.hpp"
+	"Utils.hpp"
+	<ctime>
+	"Constants.hpp"
+
+1650897953 c:\game\project\utils.hpp
+	<SDL.h>
+
+1652705801 c:\game\project\constants.hpp
+
